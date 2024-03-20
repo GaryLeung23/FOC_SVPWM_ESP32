@@ -9,8 +9,14 @@
 #include<math.h>
 #define RATCHET_NUM   4
 #define _PI 3.14159265359f
+#define ANGLE_RANGE  ( _PI )  
 
 float attractor_distance = 0;
+float m0_limit_left = 0;
+float m0_limit_right = 0;
+float m1_limit_left = 0;
+float m1_limit_right = 0;
+
 void setup()
 {
 
@@ -23,19 +29,54 @@ void setup()
 
     attractor_distance = 2 * _PI / RATCHET_NUM;
 
+    m0_limit_left = S0_zero_electric_angle - ANGLE_RANGE / 2;
+    m0_limit_right = S0_zero_electric_angle + ANGLE_RANGE / 2;
+    m1_limit_left = S1_zero_electric_angle - ANGLE_RANGE / 2;
+    m1_limit_right = S1_zero_electric_angle + ANGLE_RANGE / 2;
+
 }
 
 int count = 0;
 void loop()
 {
+    float target0 = 0;
+    float target1 = 0;
+    float angle0 =0;
+    float angle1 =0;
+
+
     runFOC();
-    float target0 = round(DFOC_M0_Angle() / attractor_distance )*attractor_distance;
-    float target1 = round(DFOC_M1_Angle() / attractor_distance )*attractor_distance;
-    DFOC_M0_SET_ANGLE_PID(0.1,0.001,0.001,100000,1.2);
-    DFOC_M0_SET_CURRENT_PID(0.8,10,0,100000);
+    angle0 = DFOC_M0_Angle();
+    angle1 = DFOC_M1_Angle();
+
+    if(angle0 < m0_limit_right && angle0 > m0_limit_left){
+        target0 = round(angle0 / attractor_distance )*attractor_distance;
+    }else{
+        if(angle0 > m0_limit_right){
+            target0 = m0_limit_right;
+        }
+        if(angle0 < m0_limit_left){
+            target0 = m0_limit_left;
+
+        }
+    }
+
+    if(angle1 < m1_limit_right && angle1 > m1_limit_left){
+        target1 = round(angle1 / attractor_distance )*attractor_distance;
+    }else{
+        if(angle1 > m1_limit_right){
+            target1 = m1_limit_right;
+        }
+        if(angle1 < m1_limit_left){
+            target1 = m1_limit_left;
+        }
+    }
+
+    DFOC_M0_SET_ANGLE_PID(0.02,0.001,0.001,100000,1.2);
+    DFOC_M0_SET_CURRENT_PID(0.75,9,0,100000);
     DFOC_M0_set_Force_Angle(target0);
-    DFOC_M1_SET_ANGLE_PID(0.1,0.001,0.001,100000,1.2);
-    DFOC_M1_SET_CURRENT_PID(0.8,10,0,100000);
+    DFOC_M1_SET_ANGLE_PID(0.02,0.001,0.001,100000,1.2);
+    DFOC_M1_SET_CURRENT_PID(0.75,9,0,100000);
     DFOC_M1_set_Force_Angle(target1);
 
 

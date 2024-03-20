@@ -4,7 +4,8 @@
 //仅在DengFOC官方硬件上测试过，欢迎硬件购买/支持作者，淘宝搜索店铺：灯哥开源
 //你的支持将是接下来做视频和持续开源的经费，灯哥在这里先谢谢大家了
 //函数声明
-
+extern float S0_zero_electric_angle;
+extern float S1_zero_electric_angle;
 
 void M0_setPwm(float Ua, float Ub, float Uc);
 void M1_setPwm(float Ua, float Ub, float Uc);
